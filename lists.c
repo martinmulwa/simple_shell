@@ -1,5 +1,27 @@
 #include "main.h"
 
+/* REMOVE THIS!!! */
+/**
+ * print_list - prints all the elements of a list_t list in a given format
+ * @h: pointer to a list_t
+ *
+ * Return: number of nodes in given list_t
+ */
+size_t print_list(const list_t *h)
+{
+	size_t count = 0;
+
+	while (h != NULL)
+	{
+		printf("%s\n", h->name);
+
+		count++;
+		h = h->next;
+	}
+
+	return (count);
+}
+
 /**
  * add_node_end - adds a new node at the end of a list_s list
  * @head: pointer to the address of the first node
@@ -11,7 +33,6 @@
 list_t *add_node_end(list_t **head, const char *name, const char *value)
 {
 	list_t *trav, *new;
-	int index = 0;
 
 	if (head == NULL || name == NULL || value == NULL)
 		return (NULL);
@@ -19,7 +40,7 @@ list_t *add_node_end(list_t **head, const char *name, const char *value)
 	trav = *head;
 
 	/* create the new node */
-	new = create_node(name, value, index);
+	new = create_node(name, value);
 	if (new == NULL)
 		return (NULL);
 
@@ -32,12 +53,8 @@ list_t *add_node_end(list_t **head, const char *name, const char *value)
 
 	/* traverse to the end of the list */
 	while (trav->next != NULL)
-	{
-		index++;
 		trav = trav->next;
-	}
 
-	new->index = index;
 	trav->next = new;
 
 	return (*head);
@@ -66,11 +83,10 @@ size_t list_len(const list_t *h)
  * create_node - creates a new list_t node
  * @name: value of the name field
  * @value: value of the value field
- * @index: index of the new node
  *
  * Return: address of new node. Otherwise NULL
  */
-list_t *create_node(const char *name, const char *value, int index)
+list_t *create_node(const char *name, const char *value)
 {
 	list_t *new;
 
@@ -83,7 +99,6 @@ list_t *create_node(const char *name, const char *value, int index)
 
 	new->name = _strdup(name);
 	new->value = _strdup(value);
-	new->index = index;
 	new->next = NULL;
 
 	return (new);
@@ -189,7 +204,7 @@ char **list_to_array(const list_t *h)
 
 /**
   * free_array - frees an array of strings
-  * arr: array
+  * @arr: array
   */
 void free_array(char **arr)
 {
@@ -204,25 +219,104 @@ void free_array(char **arr)
 	}
 
 	arr = NULL;
- }
+}
 
- /**
-  * print_list - prints all the elements of a list_t list in a given format
-  * @h: pointer to a list_t
-  *
-  * Return: number of nodes in given list_t
-  */
- size_t print_list(const list_t *h)
- {
- 	size_t count = 0;
+/**
+ * find_name - finds the index of a node with the given name in a list_t
+ * @h: head of list_t
+ * @name: name of node
+ *
+ * Return: index of node if found. Otherwise -1
+ */
+int find_name(list_t *h, const char *name)
+{
+	list_t *trav = h;
+	int index = 0;
 
- 	while (h != NULL)
- 	{
- 		printf("%s\n", h->name);
+	if (h == NULL || name == NULL)
+		return (-1);
 
- 		count++;
- 		h = h->next;
- 	}
+	/* find matching node */
+	while (trav && (_strcmp(trav->name, name)))
+	{
+		index++;
+		trav = trav->next;
+	}
 
- 	return (count);
- }
+	return (trav ? index : -1);
+}
+
+/**
+ * update_value - updates value field list_t node at given index
+ * @h: head of list_t
+ * @index: index of node to update
+ * @value: new value
+ *
+ * Return: 0 success. -1 Otherwise
+ */
+int update_value(list_t *h, int index, const char *value)
+{
+	list_t *trav = h;
+
+	if (h == NULL || index < 0 || value == NULL)
+		return (-1);
+
+	/* find node to update */
+	while (index && trav)
+	{
+		index--;
+		trav = trav->next;
+	}
+
+	/* update node */
+	if (trav)
+	{
+		free(trav->value);
+		trav->value = _strdup(value);
+		/*printf("UPDATE SUCCESSFUL!!!!\n");*/
+		return (0);
+	}
+
+	return (-1);
+}
+
+/**
+ * delete_node_index - deletes the node at given name of a linked list
+ * @head: pointer to the pointer of the 1st node in the list
+ * @index: the index of the node that should be deleted
+ *
+ * Return: 0 is successful. Otherwise -1
+ */
+int delete_node_index(list_t **head, int index)
+{
+	list_t *current, *del;
+	int i;
+
+	/* if list does not exist or list is empty */
+	if (head == NULL || *head == NULL)
+		return (-1);
+
+	current = *head;
+
+	/* if you are deleting the 1st node */
+	if (index == 0)
+	{
+		*head = (*head)->next;
+		free_node(current);
+		return (0);
+	}
+
+	/* go to the node just before the node we are supposed to delete */
+	for (i = 0; (i < index - 1) && current->next; i++)
+		current = current->next;
+
+	/* delete the node */
+	if (current->next && i == index - 1)
+	{
+		del = current->next;
+		current->next = current->next->next;
+		free_node(del);
+	}
+
+	return (0);
+}

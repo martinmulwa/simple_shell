@@ -13,7 +13,7 @@ int shell(list_t *env_list, char *shell_name)
 	list_t *input_list;
 	char **input_array;
 	pid_t child_pid;
-	int status;
+	int status, built_ret;
 
 	while (1)
 	{
@@ -35,6 +35,21 @@ int shell(list_t *env_list, char *shell_name)
 		{
 			free(input);
 			continue;
+		}
+
+		/* check if input is a built-in command */
+		built_ret = get_built(input_list, shell_name, env_list);
+		if (built_ret < -1)
+		{
+			free_list(input_list);
+			free(input);
+			continue;
+		}
+		else if (built_ret >= 0)
+		{
+			free_list(input_list);
+			free(input);
+			return (built_ret);
 		}
 
 		/* check if 1st string is a valid command */

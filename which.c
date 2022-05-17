@@ -3,6 +3,7 @@
 /**
  * get_full_name - gets full name of a given command
  * @name: string
+ * @env_list: list of environment variables
  *
  * Return: full name of given command . Otherwise NULL
  */
