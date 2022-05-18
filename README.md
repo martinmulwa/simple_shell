@@ -64,7 +64,7 @@ $ hello world
 $ exit
 ```
 
-### Credits
+## Credits
 
 Written by
 - [Festus Gichohi](https://github.com/fesgic)
