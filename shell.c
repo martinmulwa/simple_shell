@@ -47,27 +47,26 @@ int shell(list_t *env_list, char *shell_name)
 			continue;
 		}
 
-		/* change name of command to its full name */
-		free(input_list->name);
-		input_list->name = full_name;
-
 		/* change input_list to input_array */
 		input_array = list_to_array(input_list);
 		if (input_array == NULL)
 		{
-			print_error(shell_name, "No commands\n");
+			print_error(shell_name, "Malloc failed\n");
+			free(full_name);
 			free_input(input, input_list, NULL);
 			continue;
 		}
 
 		/* execute command */
-		exec_ret = execute(input_array, shell_name);
-		if (exec_ret)
+		exec_ret = execute(input_array, full_name, shell_name);
+		if (exec_ret < 0)
 		{
 			free_input(input, input_list, input_array);
-			return (exec_ret);
+			free(full_name);
+			return (-exec_ret);
 		}
 
+		free(full_name);
 		free_input(input, input_list, input_array);
 	}
 
@@ -91,7 +90,7 @@ char *get_input(void)
 	{
 		if (isatty(STDIN_FILENO))
 			write(STDOUT_FILENO, "\n", 2);
-		
+
 		free(buffer);
 		return (NULL);
 	}
@@ -142,11 +141,12 @@ void free_input(char *input, list_t *input_list, char **input_array)
 /**
  * execute - executes a given input command
  * @input_array: array of strings containing input command
+ * @command: name of command to execute
  * @shell_name: name of shell program
  *
- * Return: 0 success. Otherwise positive integer
+ * Return: 0 success. Otherwise negative integer
  */
-int execute(char **input_array, char *shell_name)
+int execute(char **input_array, char *command, char *shell_name)
 {
 	pid_t child_pid;
 	int status;
@@ -155,14 +155,14 @@ int execute(char **input_array, char *shell_name)
 	if (child_pid == -1)
 	{
 		print_error(shell_name, "fork error\n");
-		return (1);
+		return (-1);
 	}
 	else if (child_pid == 0) /* execute command */
 	{
-		if (execve(input_array[0], input_array, NULL) == -1)
+		if (execve(command, input_array, NULL) == -1)
 		{
 			print_error(shell_name, "execve error\n");
-			return (2);
+			return (-2);
 		}
 	}
 	else

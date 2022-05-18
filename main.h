@@ -68,7 +68,7 @@ char *get_input(void);
 void print_error(char *shell_name, char *message);
 void prompt(void);
 void free_input(char *input, list_t *input_list, char **input_array);
-int execute(char **input_array, char *shell_name);
+int execute(char **input_array, char *command, char *shell_name);
 
 /* built.c */
 int get_built(list_t *input_list, char *shell_name, list_t *env_list);
