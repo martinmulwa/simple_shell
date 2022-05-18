@@ -101,6 +101,9 @@ char *get_input(void)
 		return (NULL);
 	}
 
+	/* replace tabs with spaces */
+	str_rep(buffer, '\t', ' ');
+	
 	return (_strlen(buffer) == 1 ? buffer : _strtok(buffer, "\n"));
 }
 

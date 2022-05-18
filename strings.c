@@ -194,3 +194,20 @@ int _atoi(char *str)
 
 	return (result % 256);
 }
+
+/**
+ * str_rep - replaces all occurences of a character in a string with another
+ * @str: string
+ * @c1: character to replace
+ * @c2: character to replace with
+ */
+void str_rep(char *str, char c1, char c2)
+{
+	while (*str)
+	{
+		if (*str == c1)
+			*str = c2;
+
+		str++;
+	}
+}
