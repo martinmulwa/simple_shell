@@ -6,7 +6,7 @@ This is a simple UNIX command interpreter written in C.
 
 ## Compilation
 
-The shell is be compiled this way:
+The shell is compiled this way:  
 `gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`
 
 ## Usage
@@ -66,4 +66,6 @@ $ exit
 
 ### Credits
 
-Written by [Martin Mulwa](https://github.com/martinmulwa) and [Festus Gichohi](https://github.com/fesgic).
+Written by
+- [Festus Gichohi](https://github.com/fesgic)
+- [Martin Mulwa](https://github.com/martinmulwa)
