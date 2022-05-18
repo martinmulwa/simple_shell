@@ -84,10 +84,14 @@ char *get_input(void)
 	char *buffer = NULL;
 	size_t bufferSize = 0;
 
-	prompt();
+	if (isatty(STDIN_FILENO))
+		prompt();
+
 	if (getline(&buffer, &bufferSize, stdin) == -1)
 	{
-		write(STDOUT_FILENO, "\n", 2);
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "\n", 2);
+		
 		free(buffer);
 		return (NULL);
 	}
