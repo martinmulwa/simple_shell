@@ -48,8 +48,8 @@ The simple shell has support for the following built-in commands:
 | ---------------           | --------------------------------------------- |
 | exit [status]             | Exits the shell with a given status           |
 | env                       | Prints the current environment                |
-| setenv [VARIABLE] [VALUE] | Sets an environment variable to a given value |
-| unsetenv [VARIABLE]       | Removes an environment variable               |
+| setenv [variable] [value] | Sets an environment variable to a given value |
+| unsetenv [variable]       | Removes an environment variable               |
 
 ### Examples
 
