@@ -43,9 +43,7 @@ int main(int ac, char **av, char **env)
  */
 void sig_handler(int sig)
 {
-	char prompt[] = "#cisfun$ ";
-
 	signal(sig, sig_handler);
 	write(STDOUT_FILENO, "\n", 2);
-	write(STDOUT_FILENO, prompt, sizeof(prompt));
+	prompt();
 }

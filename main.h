@@ -58,7 +58,6 @@ void free_list(list_t *h);
 size_t list_len(const list_t *h);
 char **list_to_array(const list_t *h);
 void free_array(char **arr);
-size_t print_list(const list_t *h);
 int find_name(list_t *h, const char *name);
 int update_value(list_t *h, int index, const char *value);
 int delete_node_index(list_t **head, int index);
@@ -67,6 +66,9 @@ int delete_node_index(list_t **head, int index);
 int shell(list_t *env_list, char *shell_name);
 char *get_input(void);
 void print_error(char *shell_name, char *message);
+void prompt(void);
+void free_input(char *input, list_t *input_list, char **input_array);
+int execute(char **input_array, char *shell_name);
 
 /* built.c */
 int get_built(list_t *input_list, char *shell_name, list_t *env_list);

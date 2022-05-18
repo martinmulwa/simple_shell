@@ -12,26 +12,16 @@ int shell(list_t *env_list, char *shell_name)
 	char *input, *full_name;
 	list_t *input_list;
 	char **input_array;
-	pid_t child_pid;
-	int status, built_ret;
+	int built_ret, exec_ret;
 
 	while (1)
 	{
 		input = get_input();
 		if (input == NULL)
-		{
 			return (0);
-		}
 
-		if (input[0] == '\n')
-		{
-			free(input);
-			continue;
-		}
-
-		/* check input */
-		input_list = split_string(input, " ");
-		if (input_list == NULL)
+		input_list = split_string(input, " "); /* check input */
+		if (input_list == NULL || input[0] == '\n')
 		{
 			free(input);
 			continue;
@@ -39,17 +29,13 @@ int shell(list_t *env_list, char *shell_name)
 
 		/* check if input is a built-in command */
 		built_ret = get_built(input_list, shell_name, env_list);
-		if (built_ret < -1)
+		if (built_ret != -1)
 		{
-			free_list(input_list);
-			free(input);
-			continue;
-		}
-		else if (built_ret >= 0)
-		{
-			free_list(input_list);
-			free(input);
-			return (built_ret);
+			free_input(input, input_list, NULL);
+			if (built_ret < -1)
+				continue;
+			else
+				return (built_ret);
 		}
 
 		/* check if 1st string is a valid command */
@@ -57,8 +43,7 @@ int shell(list_t *env_list, char *shell_name)
 		if (full_name == NULL)
 		{
 			print_error(shell_name, "No such file or directory\n");
-			free_list(input_list);
-			free(input);
+			free_input(input, input_list, NULL);
 			continue;
 		}
 
@@ -68,39 +53,22 @@ int shell(list_t *env_list, char *shell_name)
 
 		/* change input_list to input_array */
 		input_array = list_to_array(input_list);
-		free_list(input_list);
 		if (input_array == NULL)
 		{
 			print_error(shell_name, "No commands\n");
-			free(input);
+			free_input(input, input_list, NULL);
 			continue;
 		}
 
-		/* create child process */
-		child_pid = fork();
-		if (child_pid == -1)
-		{
-			print_error(shell_name, "fork error\n");
-			free_array(input_array);
-			free(input);
-			return (1);
-		}
-
 		/* execute command */
-		if (child_pid == 0)
+		exec_ret = execute(input_array, shell_name);
+		if (exec_ret)
 		{
-			if (execve(input_array[0], input_array, NULL) == -1)
-			{
-				print_error(shell_name, "execve error\n");
-				free_array(input_array);
-				free(input);
-				return (126);
-			}
+			free_input(input, input_list, input_array);
+			return (exec_ret);
 		}
 
-		wait(&status);
-		free_array(input_array);
-		free(input);
+		free_input(input, input_list, input_array);
 	}
 
 	return (0);
@@ -115,9 +83,8 @@ char *get_input(void)
 {
 	char *buffer = NULL;
 	size_t bufferSize = 0;
-	char prompt[] = "#cisfun$ ";
 
-	write(STDOUT_FILENO, prompt, sizeof(prompt));
+	prompt();
 	if (getline(&buffer, &bufferSize, stdin) == -1)
 	{
 		write(STDOUT_FILENO, "\n", 2);
@@ -138,4 +105,69 @@ void print_error(char *shell_name, char *message)
 	write(STDERR_FILENO, shell_name, _strlen(shell_name) + 1);
 	write(STDERR_FILENO, ": ", 3);
 	write(STDERR_FILENO, message, _strlen(message) + 1);
+}
+
+/**
+ * prompt - displays shell prompt
+ */
+void prompt(void)
+{
+	char *prompt = "$ ";
+
+	write(STDOUT_FILENO, prompt, _strlen(prompt) + 1);
+}
+
+/**
+ * free_input - frees given memory buffers
+ * @input: string representing input
+ * @input_list: list representing input
+ * @input_array: array of strings representing input
+ */
+void free_input(char *input, list_t *input_list, char **input_array)
+{
+	if (input)
+		free(input);
+
+	if (input_list)
+		free_list(input_list);
+
+	if (input_array)
+		free_array(input_array);
+}
+
+/**
+ * execute - executes a given input command
+ * @input_array: array of strings containing input command
+ * @shell_name: name of shell program
+ *
+ * Return: 0 success. Otherwise positive integer
+ */
+int execute(char **input_array, char *shell_name)
+{
+	pid_t child_pid;
+	int status;
+
+	child_pid = fork();
+	if (child_pid == -1)
+	{
+		print_error(shell_name, "fork error\n");
+		return (1);
+	}
+	else if (child_pid == 0) /* execute command */
+	{
+		if (execve(input_array[0], input_array, NULL) == -1)
+		{
+			print_error(shell_name, "execve error\n");
+			return (2);
+		}
+	}
+	else
+	{
+		wait(&status);
+
+		if (WIFEXITED(status))
+			return (WEXITSTATUS(status));
+	}
+
+	return (0);
 }
