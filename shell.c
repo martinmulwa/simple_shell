@@ -13,6 +13,9 @@ int shell(list_t *env_list, char *shell_name)
 	list_t *input_list;
 	char **input_array;
 	int built_ret, exec_ret;
+	char *error_message[4];
+
+	error_message_init(error_message, shell_name, NULL);
 
 	while (1)
 	{
@@ -39,10 +42,12 @@ int shell(list_t *env_list, char *shell_name)
 		}
 
 		/* check if 1st string is a valid command */
+		error_message[1] = input_list->name;
 		full_name = get_full_name(input_list->name, env_list);
 		if (full_name == NULL)
 		{
-			print_error(shell_name, "No such file or directory\n");
+			error_message[2] = "not found";
+			print_error(error_message);
 			free_input(input, input_list, NULL);
 			continue;
 		}
@@ -51,7 +56,8 @@ int shell(list_t *env_list, char *shell_name)
 		input_array = list_to_array(input_list);
 		if (input_array == NULL)
 		{
-			print_error(shell_name, "Malloc failed\n");
+			error_message[2] = "malloc failed";
+			print_error(error_message);
 			free(full_name);
 			free_input(input, input_list, NULL);
 			continue;
@@ -100,14 +106,30 @@ char *get_input(void)
 
 /**
  * print_error - prints given error message to stderr
- * @shell_name: name of shell program
- * @message: error message
+ * @error_message: array of strings composing error message
  */
-void print_error(char *shell_name, char *message)
+void print_error(char **error_message)
 {
-	write(STDERR_FILENO, shell_name, _strlen(shell_name) + 1);
-	write(STDERR_FILENO, ": ", 3);
-	write(STDERR_FILENO, message, _strlen(message) + 1);
+	int i;
+	char *str;
+
+	for (i = 0; i < 4; i++)
+	{
+		str = error_message[i];
+
+		if (str)
+		{
+			if (i > 0)
+				write(STDERR_FILENO, ": ", 3);
+
+			write(STDERR_FILENO, str, _strlen(str) + 1);
+
+			if (i == 0)
+				write(STDERR_FILENO, ": 1", 4);
+		}
+	}
+
+	write(STDERR_FILENO, "\n", 2);
 }
 
 /**
@@ -115,7 +137,7 @@ void print_error(char *shell_name, char *message)
  */
 void prompt(void)
 {
-	char *prompt = "#cisfun$ ";
+	char *prompt = "$ ";
 
 	write(STDOUT_FILENO, prompt, _strlen(prompt) + 1);
 }
@@ -150,18 +172,23 @@ int execute(char **input_array, char *command, char *shell_name)
 {
 	pid_t child_pid;
 	int status;
+	char *error_message[4];
+
+	error_message_init(error_message, shell_name, command);
 
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-		print_error(shell_name, "fork error\n");
+		error_message[2] = "fork error";
+		print_error(error_message);
 		return (-1);
 	}
 	else if (child_pid == 0) /* execute command */
 	{
 		if (execve(command, input_array, NULL) == -1)
 		{
-			print_error(shell_name, "execve error\n");
+			error_message[2] = "execve error";
+			print_error(error_message);
 			return (-2);
 		}
 	}
@@ -174,4 +201,17 @@ int execute(char **input_array, char *command, char *shell_name)
 	}
 
 	return (0);
+}
+
+/** error_message_init - initialize error_message array with given values
+ * @error_message: error message array
+ * @shell_name: 1st value
+ * @command: 2nd value
+ */
+void error_message_init(char **error_message, char *shell_name, char *command)
+{
+	error_message[0] = shell_name;
+	error_message[1] = command;
+	error_message[2] = NULL;
+	error_message[3] = NULL;
 }

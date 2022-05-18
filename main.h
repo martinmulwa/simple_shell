@@ -65,10 +65,11 @@ int delete_node_index(list_t **head, int index);
 /* shell.c */
 int shell(list_t *env_list, char *shell_name);
 char *get_input(void);
-void print_error(char *shell_name, char *message);
+void print_error(char **error_message);
 void prompt(void);
 void free_input(char *input, list_t *input_list, char **input_array);
 int execute(char **input_array, char *command, char *shell_name);
+void error_message_init(char **error_message, char *shell_name, char *command);
 
 /* built.c */
 int get_built(list_t *input_list, char *shell_name, list_t *env_list);

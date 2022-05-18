@@ -44,6 +44,9 @@ int get_built(list_t *input_list, char *shell_name, list_t *env_list)
 int exit_shell(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 {
 	int num;
+	char *error_message[4];
+
+	error_message_init(error_message, shell_name, input_list->name);
 
 	if (input_list->next == NULL)
 		return (0);
@@ -52,7 +55,9 @@ int exit_shell(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 
 	if (num == -1)
 	{
-		print_error(shell_name, "Invalid exit status\n");
+		error_message[2] = "Illegal number";
+		error_message[3] = input_list->next->name;
+		print_error(error_message);
 		return (-2);
 	}
 
@@ -88,10 +93,14 @@ int env_func(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 int setenv_func(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 {
 	char *name, *value;
+	char *error_message[4];
+
+	error_message_init(error_message, shell_name, input_list->name);
 
 	if (input_list->next == NULL || input_list->next->next == NULL)
 	{
-		print_error(shell_name, "setenv error\n");
+		error_message[2] = "invalid number of arguments";
+		print_error(error_message);
 		return (-2);
 	}
 
@@ -99,7 +108,10 @@ int setenv_func(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 	value = input_list->next->next->name;
 
 	if (_setenv(*env_list_ptr, name, value, 1) == -1)
-		print_error(shell_name, "setenv error\n");
+	{
+		error_message[2] = "error";
+		print_error(error_message);
+	}
 
 	return (-2);
 }
@@ -115,17 +127,24 @@ int setenv_func(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 int unsetenv_func(list_t *input_list, char *shell_name, list_t **env_list_ptr)
 {
 	char *name;
+	char *error_message[4];
+
+	error_message_init(error_message, shell_name, input_list->name);
 
 	if (input_list->next == NULL)
 	{
-		print_error(shell_name, "unsetenv error\n");
+		error_message[2] = "invalid number of arguments";
+		print_error(error_message);
 		return (-2);
 	}
 
 	name = input_list->next->name;
 
 	if (_unsetenv(*env_list_ptr, name) == -1)
-		print_error(shell_name, "unsetenv error\n");
+	{
+		error_message[2] = "error";
+		print_error(error_message);
+	}
 
 	return (-2);
 }
