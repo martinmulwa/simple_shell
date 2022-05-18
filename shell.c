@@ -112,7 +112,7 @@ void print_error(char *shell_name, char *message)
  */
 void prompt(void)
 {
-	char *prompt = "$ ";
+	char *prompt = "#cisfun$ ";
 
 	write(STDOUT_FILENO, prompt, _strlen(prompt) + 1);
 }
