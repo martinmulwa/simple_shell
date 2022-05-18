@@ -55,9 +55,9 @@ The simple shell has support for the following built-in commands:
 
 ```
 $ /bin/ls
-AUTHORS  README.md  built.c  env_list.c  hsh  lists.c  main.c  main.h  shell.c	strings.c  tests  to-do  which.c
+AUTHORS  README.md  built.c  env_list.c  hsh  lists.c  main.c  main.h  shell.c	strings.c
 $ ls
-AUTHORS  README.md  built.c  env_list.c  hsh  lists.c  main.c  main.h  shell.c	strings.c  tests  to-do  which.c
+AUTHORS  README.md  built.c  env_list.c  hsh  lists.c  main.c  main.h  shell.c	strings.c
 $ ^C
 $ hello world
 ./hsh: 1: hello: not found
