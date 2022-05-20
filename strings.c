@@ -196,17 +196,16 @@ int _atoi(char *str)
 }
 
 /**
- * str_rep - replaces all occurences of a character in a string with another
+ * str_rep - replaces all occurences of a non printable character
+ * in a string with space
  * @str: string
- * @c1: character to replace
- * @c2: character to replace with
  */
-void str_rep(char *str, char c1, char c2)
+void str_rep(char *str)
 {
 	while (*str)
 	{
-		if (*str == c1)
-			*str = c2;
+		if (*str < ' ')
+			*str = ' ';
 
 		str++;
 	}

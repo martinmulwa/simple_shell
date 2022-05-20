@@ -92,6 +92,6 @@ char *_strdup(const char *str);
 char *_strtok(char *str, const char *delim);
 int is_in_str(const char *str, char c);
 int _atoi(char *str);
-void str_rep(char *str, char c1, char c2);
+void str_rep(char *str);
 
 #endif
