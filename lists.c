@@ -94,7 +94,7 @@ list_t *split_string(char *s, char *delim)
 	char *str, *next_str;
 	list_t *strings = NULL;
 
-	if (s == NULL || delim == NULL)
+	if (s == NULL || delim == NULL || *s == '\0')
 	{
 		return (NULL);
 	}

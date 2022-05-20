@@ -143,7 +143,7 @@ char *_strtok(char *str, const char *delim)
 	while (*current && *current == c) /* ignore separators at end */
 		current++;
 
-	return (start);
+	return (_strlen(start) ? start : NULL);
 }
 
 /**
